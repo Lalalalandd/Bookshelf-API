@@ -143,16 +143,14 @@ const getAllBooksHandler = (request, h) => {
   let filteredBooks = [...books];
 
   if (name !== undefined) {
-    filteredBooks = filteredBooks.filter((book) =>
-      book.name.toLowerCase().includes(name.toLowerCase())
-    );
+    filteredBooks = filteredBooks.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
   } else if (reading !== undefined) {
     filteredBooks = filteredBooks.filter(
-      (book) => Number(book.reading) === Number(reading)
+      (book) => Number(book.reading) === Number(reading),
     );
   } else if (finished !== undefined) {
     filteredBooks = filteredBooks.filter(
-      (book) => book.finished == finished
+      (book) => book.finished == finished,
     );
   }
 
@@ -189,9 +187,62 @@ const getBookByIdHandler = (request, h) => {
   return response;
 };
 
+const editBookByIDHandler = (request, h) => {
+  const { id } = request.params;
+  const {
+    name,
+    year,
+    author,
+    summary,
+    publisher,
+    pageCount,
+    readPage,
+    reading,
+  } = request.payload;
+  const updatedAt = new Date().toISOString();
+  const index = books.findIndex((book) => book.id === id);
+
+  if (name === undefined) {
+    return h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. Mohon isi nama buku',
+    }).code(400);
+  } else if (readPage > pageCount) {
+    return h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+    }).code(400);
+  } else if (index !== -1) {
+    books[index] = {
+      ...books[index],
+      name,
+      year,
+      author,
+      summary,
+      publisher,
+      pageCount,
+      readPage,
+      reading,
+      updatedAt,
+    };
+    const response = h.response({
+      status: 'success',
+      message: 'Buku berhasil diperbarui',
+    });
+    response.code(200);
+    return response;
+  }
+  const response = h.response({
+    status: 'fail',
+    message: 'Gagal memperbarui buku. Id tidak ditemukan',
+  });
+  response.code(404);
+  return response;
+};
 
 module.exports = {
   addBookHandler,
   getAllBooksHandler,
   getBookByIdHandler,
+  editBookByIDHandler,
 };
