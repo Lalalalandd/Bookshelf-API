@@ -29,9 +29,12 @@ const addBookHandler = (request, h) => {
   }
 
   const id = nanoid(16);
-  const createdAt = new Date().toISOString();
-  const updatedAt = createdAt;
+  const insertedAt = new Date().toISOString();
+  const updatedAt = insertedAt;
+  const finished = pageCount === readPage;
+
   const newBook = {
+    id,
     name,
     year,
     author,
@@ -40,8 +43,8 @@ const addBookHandler = (request, h) => {
     pageCount,
     readPage,
     reading,
-    id,
-    createdAt,
+    finished,
+    insertedAt,
     updatedAt,
   };
 
@@ -67,7 +70,111 @@ const addBookHandler = (request, h) => {
   return response;
 };
 
+// const getAllBooksHandler = (request, h) => {
+//   const { name, reading, finished } = request.query;
+
+//   if (name !== undefined) {
+//     const BooksName = books.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+//     const response = h
+//       .response({
+//         status: 'success',
+//         data: {
+//           books: BooksName.map((book) => ({
+//             id: book.id,
+//             name: book.name,
+//             publisher: book.publisher,
+//           })),
+//         },
+//       });
+//     response.code(200);
+//     return response;
+//   } if (reading !== undefined) {
+//     const BooksReading = books.filter(
+//       (book) => Number(book.reading) === Number(reading),
+//     );
+
+//     const response = h
+//       .response({
+//         status: 'success',
+//         data: {
+//           books: BooksReading.map((book) => ({
+//             id: book.id,
+//             name: book.name,
+//             publisher: book.publisher,
+//           })),
+//         },
+//       });
+//     response.code(200);
+//     return response;
+//   } if (finished !== undefined) {
+//     const BooksFinished = books.filter(
+//       (book) => book.finished == finished,
+//     );
+
+//     const response = h
+//       .response({
+//         status: 'success',
+//         data: {
+//           books: BooksFinished.map((book) => ({
+//             id: book.id,
+//             name: book.name,
+//             publisher: book.publisher,
+//           })),
+//         },
+//       });
+//     response.code(200);
+//     return response;
+//   }
+//   const response = h.response({
+//     status: 'success',
+//     data: {
+//       books: books.map((book) => ({
+//         id: book.id,
+//         name: book.name,
+//         publisher: book.publisher,
+//       })),
+//     },
+//   });
+//   response.code(200);
+//   return response;
+// };
+const getAllBooksHandler = (request, h) => {
+  const { name, reading, finished } = request.query;
+  let filteredBooks = [...books];
+
+  if (name !== undefined) {
+    filteredBooks = filteredBooks.filter((book) =>
+      book.name.toLowerCase().includes(name.toLowerCase())
+    );
+  } else if (reading !== undefined) {
+    filteredBooks = filteredBooks.filter(
+      (book) => Number(book.reading) === Number(reading)
+    );
+  } else if (finished !== undefined) {
+    filteredBooks = filteredBooks.filter(
+      (book) => book.finished == finished
+    );
+  }
+
+  const response = h.response({
+    status: 'success',
+    data: {
+      books: filteredBooks.map((book) => ({
+        id: book.id,
+        name: book.name,
+        publisher: book.publisher,
+      })),
+    },
+  });
+  response.code(200);
+  return response;
+};
+
+
+
+
 module.exports = {
-  addBookHandler
+  addBookHandler,
+  getAllBooksHandler,
 
 };
